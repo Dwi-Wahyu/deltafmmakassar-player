@@ -14,6 +14,22 @@
 
 	const nowPlayingQuery = loadData();
 
+	let volume = $state(1);
+	let mute = $state(false);
+
+	function decreaseVolume() {
+		volume = Math.max(0, volume - 0.1);
+	}
+
+	function increaseVolume() {
+		volume = Math.min(1, volume + 0.1);
+	}
+
+	function toggleMute() {
+		mute = !mute;
+		volume = mute ? 0 : 1;
+	}
+
 	let data = $derived.by(() => nowPlayingQuery.current);
 
 	$effect(() => {
@@ -85,6 +101,8 @@
 		{:else if nowPlayingQuery.error}
 			<div class="">
 				<h1>Terjadi kesalahan</h1>
+
+				<h1>{nowPlayingQuery.error}</h1>
 			</div>
 		{:else if data}
 			<div
