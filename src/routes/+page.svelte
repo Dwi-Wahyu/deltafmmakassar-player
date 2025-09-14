@@ -1,9 +1,14 @@
 <script lang="ts">
+	import { io } from 'socket.io-client';
 	import Slider from '@/components/ui/slider/slider.svelte';
 	import { loadData } from './data.remote';
+	import { onDestroy, onMount } from 'svelte';
+
+	let socket = io();
 
 	let value = $state(33);
 	let isPlaying = $state(false);
+	let totalListener = $state(0);
 
 	let audioPlayer: HTMLAudioElement | null = $state(null);
 
@@ -19,6 +24,21 @@
 				audioPlayer.pause();
 			}
 		}
+	});
+
+	onMount(() => {
+		socket.emit('add online user');
+		socket.on('total listener', (total: number) => {
+			totalListener = total;
+		});
+
+		window.addEventListener('beforeunload', () => {
+			socket.disconnect();
+		});
+	});
+
+	onDestroy(() => {
+		socket.disconnect();
 	});
 </script>
 
@@ -85,7 +105,7 @@
 						<h1>Now Playing</h1>
 						<h1 class="text-5xl font-semibold">{data.now_playing.song.title}</h1>
 						<h1>{data.now_playing.song.artist}</h1>
-						<h1>{data.listeners.current} Listening</h1>
+						<h1>{totalListener} Listening</h1>
 						<div class="flex items-center gap-3">
 							<img src="/icon/speaker.svg" alt="" class="h-7 w-7" />
 							<Slider type="single" bind:value max={100} step={1} />
@@ -93,7 +113,7 @@
 
 						<audio
 							bind:this={audioPlayer}
-							src={data.station.listen_url}
+							src={'https://stream.radioalikhwan.com/listen/delta_fm_makassar/stream'}
 							onerror={() => console.error('Audio playback error.')}
 						></audio>
 					</div>
