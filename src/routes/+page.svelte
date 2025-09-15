@@ -156,11 +156,7 @@
 					<img src={data.now_playing.song.art} alt="" />
 				{/if} -->
 
-				<img
-					class="md:w-[20vw] rounded-[29.32px] w-full md:rounded-xl"
-					src="/logo/delta-warna.png"
-					alt=""
-				/>
+				<img class="md:w-[20vw] w-full" src="/logo/delta-warna.png" alt="" />
 
 				<div class="flex w-full flex-col items-center justify-between md:flex-row">
 					<div class="flex flex-col gap-4">
