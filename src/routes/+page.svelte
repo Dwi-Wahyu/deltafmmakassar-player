@@ -45,9 +45,7 @@
 		let isError = false;
 
 		try {
-			const res = await fetch(
-				'https://stream.radioalikhwan.com/listen/delta_fm_makassar/radio.mp3'
-			);
+			const res = await fetch('https://stream.radioalikhwan.com/api/nowplaying/delta_fm_makassar');
 
 			if (!res.ok) {
 				console.error('Failed to fetch data');
@@ -56,25 +54,6 @@
 			}
 
 			const responseData: NowPlayingResponse = await res.json();
-
-			if (responseData.now_playing && responseData.now_playing.song.artist.trim() === 'AL IKHWAN') {
-				responseData.now_playing.song.title = 'Delta 99.2 Makassar';
-			}
-
-			if (responseData.song_history && Array.isArray(responseData.song_history)) {
-				responseData.song_history = responseData.song_history.map((item) => {
-					if (item.song.artist.trim() === 'AL IKHWAN') {
-						return {
-							...item,
-							song: {
-								...item.song,
-								title: 'Delta 99.2 Makassar'
-							}
-						};
-					}
-					return item;
-				});
-			}
 
 			data = responseData;
 		} catch (error) {
