@@ -45,7 +45,9 @@
 		let isError = false;
 
 		try {
-			const res = await fetch('https://stream.radioalikhwan.com/api/nowplaying/delta_fm_makassar');
+			const res = await fetch(
+				'https://stream.radioalikhwan.com/listen/delta_fm_makassar/radio.mp3'
+			);
 
 			if (!res.ok) {
 				console.error('Failed to fetch data');
