@@ -40,24 +40,49 @@
 	});
 
 	async function handleFetchData() {
-		try {
-			isLoading = true;
+		let data = null; // Inisialisasi data di sini
+		let isLoading = true;
+		let isError = false;
 
+		try {
 			const res = await fetch('https://stream.radioalikhwan.com/api/nowplaying/delta_fm_makassar');
 
 			if (!res.ok) {
-				return null;
+				console.error('Failed to fetch data');
+				isError = true;
+				return;
 			}
 
 			const responseData: NowPlayingResponse = await res.json();
 
+			if (responseData.now_playing && responseData.now_playing.song.artist.trim() === 'AL IKHWAN') {
+				responseData.now_playing.song.title = 'Delta 99.2 Makassar';
+			}
+
+			if (responseData.song_history && Array.isArray(responseData.song_history)) {
+				responseData.song_history = responseData.song_history.map((item) => {
+					if (item.song.artist.trim() === 'AL IKHWAN') {
+						return {
+							...item,
+							song: {
+								...item.song,
+								title: 'Delta 99.2 Makassar'
+							}
+						};
+					}
+					return item;
+				});
+			}
+
 			data = responseData;
 		} catch (error) {
 			isError = true;
-			console.log(error);
+			console.error('An error occurred:', error);
 		} finally {
 			isLoading = false;
 		}
+
+		return data;
 	}
 
 	onMount(() => {
@@ -126,7 +151,7 @@
 			<div
 				class="flex flex-col gap-6 rounded-[29.32px] bg-white/20 p-4 shadow-2xl md:flex-row md:gap-[70px] md:p-10"
 			>
-				{#if data.now_playing.song.art === 'http://stream.radioalikhwan.com/static/img/generic_song.jpg'}
+				<!-- {#if data.now_playing.song.art === 'http://stream.radioalikhwan.com/static/img/generic_song.jpg'}
 					<img
 						class="md:w-[20vw] rounded-[29.32px] w-full md:rounded-xl"
 						src="https://stream.radioalikhwan.com/static/img/generic_song.jpg"
@@ -134,7 +159,13 @@
 					/>
 				{:else}
 					<img src={data.now_playing.song.art} alt="" />
-				{/if}
+				{/if} -->
+
+				<img
+					class="md:w-[20vw] rounded-[29.32px] w-full md:rounded-xl"
+					src="/logo/delta-warna.png"
+					alt=""
+				/>
 
 				<div class="flex w-full flex-col items-center justify-between md:flex-row">
 					<div class="flex flex-col gap-4">
