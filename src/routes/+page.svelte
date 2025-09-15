@@ -1,36 +1,33 @@
 <script lang="ts">
 	import { io } from 'socket.io-client';
 	import Slider from '@/components/ui/slider/slider.svelte';
-	import { loadData } from './data.remote';
 	import { onDestroy, onMount } from 'svelte';
 
 	let socket = io();
 
-	let value = $state(33);
 	let isPlaying = $state(false);
 	let totalListener = $state(0);
 
 	let audioPlayer: HTMLAudioElement | null = $state(null);
 
-	const nowPlayingQuery = loadData();
+	let isLoading = $state(true);
+	let isError = $state(false);
+
+	let data = $state<NowPlayingResponse | null>(null);
 
 	let volume = $state(1);
 	let mute = $state(false);
-
-	function decreaseVolume() {
-		volume = Math.max(0, volume - 0.1);
-	}
-
-	function increaseVolume() {
-		volume = Math.min(1, volume + 0.1);
-	}
 
 	function toggleMute() {
 		mute = !mute;
 		volume = mute ? 0 : 1;
 	}
 
-	let data = $derived.by(() => nowPlayingQuery.current);
+	$effect(() => {
+		if (audioPlayer) {
+			audioPlayer.volume = volume;
+		}
+	});
 
 	$effect(() => {
 		if (audioPlayer) {
@@ -42,11 +39,34 @@
 		}
 	});
 
+	async function handleFetchData() {
+		try {
+			isLoading = true;
+
+			const res = await fetch('https://stream.radioalikhwan.com/api/nowplaying/delta_fm_makassar');
+
+			if (!res.ok) {
+				return null;
+			}
+
+			const responseData: NowPlayingResponse = await res.json();
+
+			data = responseData;
+		} catch (error) {
+			isError = true;
+			console.log(error);
+		} finally {
+			isLoading = false;
+		}
+	}
+
 	onMount(() => {
 		socket.emit('add online user');
 		socket.on('total listener', (total: number) => {
 			totalListener = total;
 		});
+
+		handleFetchData();
 
 		window.addEventListener('beforeunload', () => {
 			socket.disconnect();
@@ -94,15 +114,13 @@
 			</div>
 		</div>
 
-		{#if nowPlayingQuery.loading}
+		{#if isLoading}
 			<div class="">
 				<h1>Loading . . .</h1>
 			</div>
-		{:else if nowPlayingQuery.error}
+		{:else if isError}
 			<div class="">
 				<h1>Terjadi kesalahan</h1>
-
-				<h1>{nowPlayingQuery.error}</h1>
 			</div>
 		{:else if data}
 			<div
@@ -125,8 +143,15 @@
 						<h1>{data.now_playing.song.artist}</h1>
 						<h1>{totalListener} Listening</h1>
 						<div class="flex items-center gap-3">
-							<img src="/icon/speaker.svg" alt="" class="h-7 w-7" />
-							<Slider type="single" bind:value max={100} step={1} />
+							<button onclick={toggleMute}>
+								{#if volume === 0}
+									<img src="/icon/mute.svg" class="w-7" alt="Mute" />
+								{:else}
+									<img src="/icon/unmute.svg" class="w-7" alt="Unmute" />
+								{/if}
+							</button>
+
+							<Slider type="single" bind:value={volume} max={1} min={0} step={0.01} />
 						</div>
 
 						<audio
