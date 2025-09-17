@@ -151,21 +151,11 @@
 			</div>
 		{:else if data}
 			<div
-				class="flex flex-col gap-6 rounded-[29.32px] bg-white/20 p-4 shadow-2xl md:flex-row md:gap-[70px] md:p-10"
+				class="flex flex-col gap-6 rounded-[29.32px] bg-white/20 p-5 shadow-2xl md:flex-row md:gap-4 md:p-10"
 			>
-				<!-- {#if data.now_playing.song.art === 'http://stream.radioalikhwan.com/static/img/generic_song.jpg'}
-					<img
-						class="md:w-[20vw] rounded-[29.32px] w-full md:rounded-xl"
-						src="https://stream.radioalikhwan.com/static/img/generic_song.jpg"
-						alt=""
-					/>
-				{:else}
-					<img src={data.now_playing.song.art} alt="" />
-				{/if} -->
-
 				<img class="md:w-[20vw] w-full" src="/logo/delta-warna.png" alt="" />
 
-				<div class="flex w-full flex-col items-center justify-between md:flex-row">
+				<div class="flex w-full flex-col justify-between md:flex-row">
 					<div class="flex flex-col gap-4">
 						<h1>Now Playing</h1>
 						<h1 class="text-5xl font-semibold">{data.now_playing.song.title}</h1>
@@ -189,7 +179,10 @@
 							onerror={() => console.error('Audio playback error.')}
 						></audio>
 					</div>
-					<button class="cursor-pointer" onclick={() => (isPlaying = !isPlaying)}>
+					<button
+						class="cursor-pointer flex justify-center"
+						onclick={() => (isPlaying = !isPlaying)}
+					>
 						{#if isPlaying}
 							<img src="/icon/pause.svg" alt="" />
 						{:else}
