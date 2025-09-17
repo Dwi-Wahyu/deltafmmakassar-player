@@ -88,9 +88,16 @@
 
 		handleFetchData();
 
+		const interval = setInterval(() => {
+			handleFetchData();
+		}, 10000);
+
 		window.addEventListener('beforeunload', () => {
 			socket.disconnect();
+			clearInterval(interval);
 		});
+
+		return () => clearInterval(interval);
 	});
 
 	onDestroy(() => {
